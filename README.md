@@ -15,7 +15,7 @@ Measured on a Ryzen 7 3700X with every bot joined to a local server:
 | 50 | ~20 GB | 2.47 GB, 43% of a core (1.94 GB, 37% at render distance 3) |
 
 Each bot is driven through its own `horizon-ctl` control socket: walk, look, mine, place, use, chat, read
-the world. Sextant (pathing, coming next) builds on that.
+the world. [Sextant](https://github.com/Solenopsisbot/sextant) (pathing, in styles from robot to player-like) builds on that.
 
 ## What it needs
 
