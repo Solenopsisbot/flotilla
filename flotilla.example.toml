@@ -1,0 +1,10 @@
+# Copy to flotilla.toml. See README.md.
+server = "127.0.0.1:25565"
+horizon = "~/horizon-fork"
+render_distance = 3
+
+[[bot]]
+name = "Scout"
+
+[[bot]]
+name = "Miner"
