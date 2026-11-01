@@ -64,6 +64,18 @@ impl Fleet {
             return Err("the fleet is already up (flotilla list, flotilla down)".into());
         }
         std::fs::create_dir_all(self.paths.game_dir()).map_err(|e| e.to_string())?;
+        // Sockets a fleet that stopped left behind: a new bot's would look ready before it is.
+        for entry in std::fs::read_dir(&self.paths.state)
+            .into_iter()
+            .flatten()
+            .flatten()
+        {
+            let name = entry.file_name();
+            let name = name.to_string_lossy();
+            if name.starts_with("ctl") && name.ends_with(".sock") {
+                let _ = std::fs::remove_file(entry.path());
+            }
+        }
         let (first, rest) = self.config.bots.split_first().ok_or("no bots")?;
         let mut args: Vec<String> = vec![
             "launch".into(),
@@ -112,8 +124,16 @@ impl Fleet {
             }
             std::thread::sleep(std::time::Duration::from_millis(100));
         }
-        self.ctl(&socket, &["wait-ready", READY_SECONDS])
-            .map(|_| ())
+        // The socket can exist a moment before the bot listens on it: try again until then.
+        loop {
+            match self.ctl(&socket, &["wait-ready", READY_SECONDS]) {
+                Ok(_) => return Ok(()),
+                Err(e) if e.contains("cannot connect") && std::time::Instant::now() < deadline => {
+                    std::thread::sleep(std::time::Duration::from_millis(200));
+                }
+                Err(e) => return Err(e),
+            }
+        }
     }
 
     /// Spawns one more bot into the running fleet (it is still joining when this returns).
