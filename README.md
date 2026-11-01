@@ -15,7 +15,7 @@ Measured on a Ryzen 7 3700X with every bot joined to a local server:
 | 50 | ~20 GB | 2.47 GB, 43% of a core (1.94 GB, 37% at render distance 3) |
 
 Each bot is driven through its own `horizon-ctl` control socket: walk, look, mine, place, use, chat, read
-the world. [Sextant](https://github.com/Solenopsisbot/sextant) (pathing) builds on that.
+the world. Sextant (pathing, coming next) builds on that.
 
 ## What it needs
 
@@ -69,7 +69,7 @@ The fork's `main` is upstream's `main`, plus our in-flight branches, plus commit
 `FORK ONLY` (offline bots). Two commands keep that safe:
 
 ```sh
-flotilla sync-fork ~/horizon-fork-main     # merge upstream's main into fork-main (a worktree of it) and push it, fast-forward only
+flotilla sync-fork ~/horizon-fork          # merge upstream's main into fork-main (a worktree of it) and push it, fast-forward only
 flotilla pr-check ~/horizon some-branch    # refuse a branch that carries a FORK ONLY commit, before a pull request
 ```
 
