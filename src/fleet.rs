@@ -86,13 +86,29 @@ impl Fleet {
             self.add(bot)?;
         }
         for bot in rest {
-            self.ctl(
-                &self.paths.bot_socket(&bot.name),
-                &["wait-ready", READY_SECONDS],
-            )?;
+            self.wait_ready(&bot.name)?;
             println!("{} is in the world", bot.name);
         }
         Ok(())
+    }
+
+    /// Waits until spawned bot `name` stands in the world. `spawn` answers as soon as the
+    /// bot's thread starts, a moment before its control socket exists: wait for the socket
+    /// first, or `wait-ready` finds nothing to connect to.
+    pub fn wait_ready(&self, name: &str) -> Result<(), String> {
+        let socket = self.paths.bot_socket(name);
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(60);
+        while !socket.exists() {
+            if std::time::Instant::now() > deadline {
+                return Err(format!(
+                    "{name}'s control socket never appeared: see the game's log in {}",
+                    self.paths.game_dir().display()
+                ));
+            }
+            std::thread::sleep(std::time::Duration::from_millis(100));
+        }
+        self.ctl(&socket, &["wait-ready", READY_SECONDS])
+            .map(|_| ())
     }
 
     /// Spawns one more bot into the running fleet (it is still joining when this returns).

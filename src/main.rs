@@ -100,7 +100,10 @@ fn run(cli: Cli) -> Result<(), String> {
                 render_distance: render_distance.or(known.and_then(|b| b.render_distance)),
                 session_file: session_file.or(known.and_then(|b| b.session_file.clone())),
             };
-            fleet.add(&bot)
+            fleet.add(&bot)?;
+            fleet.wait_ready(&bot.name)?;
+            println!("{} is in the world", bot.name);
+            Ok(())
         }
         Cmd::Remove { name } => fleet.remove(&name),
         Cmd::List => {
